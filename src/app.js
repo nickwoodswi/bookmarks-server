@@ -8,6 +8,7 @@ const helmet = require('helmet')
 const { NODE_ENV } = require('./config')
 const bookmarkRouter = require('./bookmark-router')
 const logger = require('./logger')
+const BookmarksService = require('./bookmarks-service')
 
 const app = express()
 
@@ -26,6 +27,7 @@ app.use(function validateBearerToken(req, res, next) {
     const authToken = req.get('Authorization')
   
     console.log(bearerToken)
+    console.log(authToken)
   
     if (!authToken || authToken.split(' ')[1] !== bearerToken) {
         logger.error(`Unauthorized request to path: ${req.path}`)
@@ -34,6 +36,14 @@ app.use(function validateBearerToken(req, res, next) {
     // move to the next middleware
     next() 
   })
+
+app.get('/srticles', (req, res, next) => {
+  BookmarksService.getAllArticles(knexInstance)
+    .then(articles => {
+      res.json(articles)
+    })
+    .catch(next)
+})
 
 app.use(bookmarkRouter)
   
