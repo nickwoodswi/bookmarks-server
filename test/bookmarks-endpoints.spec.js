@@ -22,30 +22,33 @@ describe.only('Bookmarks Endpoints', function() {
 
     describe(`GET /bookmarks`, () => {
 
-    context(`Given no bookmarks`, () => {
-        it(`responds with 200 and an empty list`, () => {
-        return supertest(app)
-            .get('/bookmarks')
-            .expect(200, [])
+      context(`Given no bookmarks`, () => {
+          it(`responds with 200 and an empty list`, () => {
+          return supertest(app)
+              .get('/bookmarks')
+              .set('Authorization', 'Bearer 08915715-b742-42bd-8589-6ee391767e77')
+              .expect(200, [])
+          })
+      })
+
+      context('Given there are bookmarks in the database', () => {
+        const testBookmarks = makeBookmarksArray()
+
+        beforeEach('insert bookmarks', () => {
+          return db
+            .into('bookmarks')
+            .insert(testBookmarks)
         })
-    })
 
-    context('Given there are bookmarks in the database', () => {
-      const testBookmarks = makeBookmarksArray()
-
-      beforeEach('insert bookmarks', () => {
-        return db
-          .into('bookmarks')
-          .insert(testBookmarks)
+        it('responds with 200 and all of the bookmarks', () => {
+          return supertest(app)
+            .get('/bookmarks')
+            .set('Authorization', 'Bearer 08915715-b742-42bd-8589-6ee391767e77')
+            .expect(200, testBookmarks)
+        })
       })
 
-      it('responds with 200 and all of the bookmarks', () => {
-        return supertest(app)
-          .get('/bookmarks')
-          .expect(200, testBookmarks)
-      })
     })
-  })
 
   describe(`GET /bookmarks/:bookmark_id`, () => {
 
@@ -54,6 +57,7 @@ describe.only('Bookmarks Endpoints', function() {
         const bookmarksId = 123456
         return supertest(app)
             .get(`/bookmarks/${bookmarksId}`)
+            .set('Authorization', 'Bearer 08915715-b742-42bd-8589-6ee391767e77')
             .expect(404, { error: { message: `Bookmark doesn't exist` } })
         })
     })
@@ -72,6 +76,7 @@ describe.only('Bookmarks Endpoints', function() {
         const expectedBookmark = testBookmarks[bookmarkId - 1]
         return supertest(app)
           .get(`/bookmarks/${bookmarkId}`)
+          .set('Authorization', 'Bearer 08915715-b742-42bd-8589-6ee391767e77')
           .expect(200, expectedBookmark)
       })
     })
